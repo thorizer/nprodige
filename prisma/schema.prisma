@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator nestjsDto {
+  provider = "prisma-generator-nestjs-dto"
+  output   = "../src/generated/nestjs-dto"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id(map: "user_pk") @db.Uuid
+  username     String         @unique(map: "user_username_uindex") @db.VarChar(255)
+  email        String         @unique(map: "user_email_uindex") @db.VarChar(255)
+  first_name   String         @db.VarChar(255)
+  last_name    String         @db.VarChar(255)
+  password     String         @db.VarChar(255)
+  phone        String         @db.VarChar(255)
+  phone_code   String?        @db.VarChar(50)
+  last_login   DateTime?      @db.Date
+  created_at   DateTime?      @default(now())
+  updated_at   DateTime?      @updatedAt
+  role         Role           @default(USER)
+  user_address User_address[]
+}
+
+model User_address {
+  id            String    @id(map: "user_address_pk") @db.Uuid
+  user_id       String    @db.Uuid
+  address_line1 String    @db.VarChar(255)
+  address_line2 String    @db.VarChar(255)
+  city          String    @db.VarChar(255)
+  postal_code   String    @db.VarChar(255)
+  country       String    @db.VarChar(255)
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @updatedAt
+  gender        Gender
+  user          User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id_fk")
+}
+
+enum Gender {
+  Male
+  Female
+  NonBinary
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}
